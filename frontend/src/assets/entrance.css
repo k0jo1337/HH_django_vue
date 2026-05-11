@@ -1,0 +1,423 @@
+html,
+body,
+#app {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: #F8FAFC;
+    overflow-x: hidden;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main.main {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* =========================
+   LEFT SIDE
+========================= */
+
+div.parent_form {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #F8FAFC;
+}
+
+div.form_logo {
+    max-height: 62px;
+    max-width: 304px;
+    width: 100%;
+    height: 100%;
+    margin: 0 20px;
+}
+
+div.form_logo img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+div.adaptiv_form {
+    max-width: 384px;
+    width: 100%;
+    margin: 30px 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+div.adaptiv_form h1 {
+    width: 100%;
+    padding: 0;
+    text-align: center;
+    color: #1E293B;
+    font-size: 36px;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
+/* =========================
+   FORM
+========================= */
+
+div.input_form {
+    width: 100%;
+    margin-top: 20px;
+}
+
+div.input_form p {
+    margin-bottom: 5px;
+    color: #1E293B;
+    font-weight: 500;
+}
+
+div.input_form input {
+    padding: 16px 12px;
+    width: 100%;
+    height: 45px;
+    color: #94A3B8;
+    font-size: 14px;
+    background: none;
+    outline: none;
+    border: 1px solid #E2E8F0;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+
+div.input_form input[type="submit"] {
+    background: #3c5ba4;
+    font-size: 16px;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: initial;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+div.input_form input[type="submit"]:hover {
+    background: #2d4b91;
+}
+
+label.checkbox_form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    color: #1E293B;
+    font-weight: 500;
+}
+
+label.checkbox_form input {
+    width: 18px;
+    height: 18px;
+    accent-color: #3c5ba4;
+}
+
+div.input_form input:disabled {
+    color: #94A3B8;
+    background: #EEF2F7;
+}
+
+/* =========================
+   REGISTER
+========================= */
+
+main.register-main {
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+main.register-main div.parent_form {
+    justify-content: center;
+    padding: 18px 28px;
+}
+
+main.register-main div.form_logo {
+    max-height: 46px;
+    max-width: 226px;
+    flex-shrink: 0;
+}
+
+main.register-main div.adaptiv_form {
+    max-width: 620px;
+    margin: 16px 0 0;
+}
+
+main.register-main div.adaptiv_form h1 {
+    font-size: 28px;
+}
+
+main.register-main hr {
+    margin: 10px 0 4px;
+}
+
+main.register-main form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+    row-gap: 10px;
+}
+
+main.register-main div.input_form {
+    margin-top: 0;
+}
+
+main.register-main div.input_form p {
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+main.register-main div.input_form input {
+    height: 40px;
+    padding: 10px 12px;
+}
+
+main.register-main label.checkbox_form {
+    align-self: end;
+    min-height: 40px;
+    margin-top: 0;
+    padding-bottom: 7px;
+}
+
+main.register-main div.input_form:last-child {
+    grid-column: 1 / -1;
+}
+
+main.register-main div.input_form input[type="submit"] {
+    height: 44px;
+}
+
+main.register-main h6 {
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+main.register-main .alert {
+    margin-bottom: 0;
+    padding: 8px 12px;
+}
+
+main.register-main div.parent_entrance,
+main.register-main div.adaptiv_entrance img {
+    height: 100vh;
+}
+
+@media (max-height: 760px) and (min-width: 993px) {
+    main.register-main div.parent_form {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    main.register-main div.form_logo {
+        max-height: 38px;
+        max-width: 186px;
+    }
+
+    main.register-main div.adaptiv_form {
+        margin-top: 10px;
+    }
+
+    main.register-main div.adaptiv_form h1 {
+        font-size: 23px;
+    }
+
+    main.register-main form {
+        row-gap: 8px;
+    }
+
+    main.register-main div.input_form p {
+        font-size: 13px;
+    }
+
+    main.register-main div.input_form input {
+        height: 36px;
+        padding: 8px 10px;
+    }
+
+    main.register-main label.checkbox_form {
+        min-height: 36px;
+        padding-bottom: 5px;
+        font-size: 13px;
+    }
+
+    main.register-main div.input_form input[type="submit"] {
+        height: 40px;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 993px) {
+    main.register-main div.parent_form {
+        width: 56%;
+    }
+
+    main.register-main div.parent_entrance {
+        width: 44%;
+    }
+}
+
+/* =========================
+   LINKS
+========================= */
+
+h6 {
+    margin-top: 20px;
+}
+
+h6 a {
+    color: #3c5ba4;
+    text-decoration: none;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+
+div.parent_entrance {
+    height: 100vh;
+    width: 50%;
+    overflow: hidden;
+}
+
+div.adaptiv_entrance {
+    height: 100%;
+    width: 100%;
+}
+
+div.adaptiv_entrance img {
+    object-fit: cover;
+    height: 100vh;
+    width: 100%;
+    display: block;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 992px) {
+
+    main.main {
+        flex-direction: column;
+    }
+
+    main.register-main {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    div.parent_form {
+        width: 100%;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    div.parent_entrance {
+        display: none;
+    }
+
+    div.adaptiv_form {
+        max-width: 450px;
+        margin: 20px auto;
+    }
+
+    main.register-main div.parent_form {
+        min-height: 100vh;
+        padding: 24px 20px;
+    }
+
+    main.register-main div.adaptiv_form {
+        max-width: 560px;
+        margin: 14px auto 0;
+    }
+
+    main.register-main form {
+        grid-template-columns: 1fr;
+        row-gap: 9px;
+    }
+
+    main.register-main label.checkbox_form {
+        min-height: auto;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 576px) {
+
+    div.form_logo {
+        max-width: 220px;
+    }
+
+    div.adaptiv_form {
+        width: 100%;
+        max-width: 100%;
+        margin: 10px 0;
+    }
+
+    div.adaptiv_form h1 {
+        font-size: 28px;
+    }
+
+    div.input_form input {
+        height: 48px;
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    div.input_form input[type="submit"] {
+        font-size: 15px;
+    }
+
+    main.register-main div.parent_form {
+        padding: 18px 16px;
+    }
+
+    main.register-main div.form_logo {
+        max-width: 190px;
+        max-height: 38px;
+    }
+
+    main.register-main div.adaptiv_form h1 {
+        font-size: 23px;
+    }
+
+    main.register-main div.input_form p {
+        font-size: 13px;
+    }
+
+    main.register-main div.input_form input {
+        height: 38px;
+        padding: 8px 10px;
+    }
+
+    h6 {
+        font-size: 14px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 380px) {
+
+    div.adaptiv_form h1 {
+        font-size: 24px;
+    }
+
+    div.input_form p {
+        font-size: 14px;
+    }
+
+    div.input_form input {
+        height: 44px;
+        font-size: 13px;
+    }
+}
