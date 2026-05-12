@@ -1,9 +1,30 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import api from "../api";
+import FormField from "../components/FormField.vue";
+import { editableProfileFields } from "../forms/profileFields";
 
 const user = ref(null);
 const loading = ref(true);
+
+const fieldGroups = computed(() => {
+  const source = user.value || {};
+  const groups = {
+    name: [],
+    contacts: [],
+  };
+
+  editableProfileFields.forEach((field) => {
+    groups[field.group].push({
+      ...field,
+      readonly: true,
+      required: false,
+      value: source[field.name] || "-",
+    });
+  });
+
+  return groups;
+});
 
 onMounted(async () => {
   try {
@@ -24,48 +45,28 @@ onMounted(async () => {
     <div v-else-if="user" class="profil_item_2">
       <div class="profil_fields">
         <div class="profil_list">
-          <div class="profil_list_item">
-            <p>Фамилия</p>
-            <input readonly type="text" :value="user.last_name || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Имя</p>
-            <input readonly type="text" :value="user.first_name || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Отчество</p>
-            <input readonly type="text" :value="user.middle_name || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Телефон</p>
-            <input readonly type="text" :value="user.phone || '-'">
-          </div>
+          <FormField
+            v-for="field in fieldGroups.name"
+            :key="field.name"
+            :model-value="field.value"
+            :field="{ ...field, class: 'profil_list_item' }"
+          />
         </div>
 
         <div class="profil_list">
-          <div class="profil_list_item">
-            <p>Email</p>
-            <input readonly type="text" :value="user.email || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Комната</p>
-            <input readonly type="text" :value="user.room_number || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Общежитие</p>
-            <input readonly type="text" :value="user.hostel || '-'">
-          </div>
-          <div class="profil_list_item">
-            <p>Институт</p>
-            <input readonly type="text" :value="user.university || '-'">
-          </div>
+          <FormField
+            v-for="field in fieldGroups.contacts"
+            :key="field.name"
+            :model-value="field.value"
+            :field="{ ...field, class: 'profil_list_item' }"
+          />
         </div>
       </div>
 
       <div class="profil_change">
-        <RouterLink to="/profile/edit">✏️ Редактировать профиль</RouterLink>
+        <RouterLink to="/profile/edit">Редактировать профиль</RouterLink>
         <br>
-        <RouterLink to="/password-change">🔒 Смена пароля</RouterLink>
+        <RouterLink to="/password-change">Смена пароля</RouterLink>
       </div>
     </div>
   </main>

@@ -9,6 +9,14 @@ from .models import UserProfile
 from django.contrib.auth.models import User
 
 
+def get_user_profile(user):
+    profile, _ = UserProfile.objects.get_or_create(
+        user=user,
+        defaults={"room_number": ""},
+    )
+    return profile
+
+
 @api_view(["POST"])
 def register_view(request):
     """
@@ -67,10 +75,10 @@ def me_view(request):
     """
     if request.user.is_authenticated:
         user = request.user
-        profile = getattr(user, "profile", None)
+        profile = get_user_profile(user)
 
         avatar_url = None
-        if profile and profile.avatar and profile.avatar.url:
+        if profile.avatar and profile.avatar.url:
             avatar_url = request.build_absolute_uri(profile.avatar.url)
 
         return Response({
@@ -81,12 +89,12 @@ def me_view(request):
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "middle_name": profile.middle_name if profile else "",
-                "has_no_middle_name": profile.has_no_middle_name if profile else False,
-                "phone": profile.phone if profile else "",
-                "university": profile.university if profile else "",
-                "hostel": profile.hostel if profile else "",
-                "room_number": profile.room_number if profile else "",
+                "middle_name": profile.middle_name,
+                "has_no_middle_name": profile.has_no_middle_name,
+                "phone": profile.phone,
+                "university": profile.university,
+                "hostel": profile.hostel,
+                "room_number": profile.room_number,
                 "avatar": avatar_url,
             }
         })
@@ -116,11 +124,7 @@ def profile_view(request):
     PATCH - частичное обновление профиля (включая загрузку аватара)
     """
     user = request.user
-    profile = getattr(user, "profile", None)
-
-    # Если профиля нет, создаем его автоматически
-    if not profile:
-        profile = UserProfile.objects.create(user=user)
+    profile = get_user_profile(user)
 
     # GET запрос - возвращаем полную информацию о профиле
     if request.method == "GET":

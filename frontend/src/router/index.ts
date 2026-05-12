@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import api from "../api";
+import { hasAuthenticatedSession, setAuthenticated } from "../auth";
 
 import EntranceView from "../views/EntranceView.vue";
 import RegisterView from "../views/RegisterView.vue";
@@ -50,9 +51,14 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
+  if (to.meta.requiresAuth && hasAuthenticatedSession()) {
+    return true;
+  }
+
   try {
     const response = await api.get("/account/me/");
     const isAuthenticated = response.data.isAuthenticated;
+    setAuthenticated(isAuthenticated);
 
     if (to.meta.requiresAuth && !isAuthenticated) {
       return "/";
@@ -61,6 +67,8 @@ router.beforeEach(async (to) => {
       return "/home";
     }
   } catch {
+    setAuthenticated(false);
+
     if (to.meta.requiresAuth) {
       return "/";
     }

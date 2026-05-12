@@ -1,29 +1,39 @@
 <script setup>
-import { ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
+import FormField from "../components/FormField.vue";
+import { registerFields, registerInitialValues } from "../forms/profileFields";
 
 const router = useRouter();
 
-const username = ref("");
-const email = ref("");
-const lastName = ref("");
-const firstName = ref("");
-const middleName = ref("");
-const hasNoMiddleName = ref(false);
-const roomNumber = ref("");
-const password = ref("");
-const passwordConfirm = ref("");
-
+const form = reactive({ ...registerInitialValues });
 const success = ref("");
 const error = ref("");
 const loading = ref(false);
 
-watch(hasNoMiddleName, (value) => {
-  if (value) {
-    middleName.value = "";
+const visibleFields = computed(() =>
+  registerFields.map((field) => {
+    if (field.name !== "middle_name") {
+      return field;
+    }
+
+    return {
+      ...field,
+      disabled: form.has_no_middle_name,
+      required: !form.has_no_middle_name,
+    };
+  })
+);
+
+watch(
+  () => form.has_no_middle_name,
+  (value) => {
+    if (value) {
+      form.middle_name = "";
+    }
   }
-});
+);
 
 function firstError(data) {
   const fields = [
@@ -32,7 +42,6 @@ function firstError(data) {
     "last_name",
     "first_name",
     "middle_name",
-    "room_number",
     "password",
     "password_confirm",
     "non_field_errors",
@@ -51,7 +60,7 @@ async function registerUser() {
   success.value = "";
   error.value = "";
 
-  if (password.value !== passwordConfirm.value) {
+  if (form.password !== form.password_confirm) {
     error.value = "Пароли не совпадают";
     return;
   }
@@ -59,27 +68,16 @@ async function registerUser() {
   try {
     loading.value = true;
 
-    const response = await api.post(
-      "/account/register/",
-      {
-        username: username.value,
-        email: email.value,
-        last_name: lastName.value,
-        first_name: firstName.value,
-        middle_name: hasNoMiddleName.value ? "" : middleName.value,
-        has_no_middle_name: hasNoMiddleName.value,
-        room_number: roomNumber.value,
-        password: password.value,
-        password_confirm: passwordConfirm.value,
-      }
-    );
+    const response = await api.post("/account/register/", {
+      ...form,
+      middle_name: form.has_no_middle_name ? "" : form.middle_name,
+    });
 
     success.value = response.data.message;
 
     setTimeout(() => {
       router.push("/");
     }, 1000);
-
   } catch (err) {
     if (err.response && err.response.data) {
       error.value = firstError(err.response.data);
@@ -107,55 +105,23 @@ async function registerUser() {
         <hr>
 
         <form @submit.prevent="registerUser">
-          <div class="input_form">
-            <p>Логин:</p>
-            <input v-model="username" type="text" required>
-          </div>
+          <template v-for="field in visibleFields" :key="field.name">
+            <FormField
+              v-model="form[field.name]"
+              :field="field"
+            />
 
-          <div class="input_form">
-            <p>Email:</p>
-            <input v-model="email" type="email" required>
-          </div>
-
-          <div class="input_form">
-            <p>Фамилия:</p>
-            <input v-model="lastName" type="text" required>
-          </div>
-
-          <div class="input_form">
-            <p>Имя:</p>
-            <input v-model="firstName" type="text" required>
-          </div>
-
-          <div class="input_form">
-            <p>Отчество:</p>
-            <input
-              v-model="middleName"
-              type="text"
-              :disabled="hasNoMiddleName"
-              :required="!hasNoMiddleName"
-            >
-          </div>
-
-          <label class="checkbox_form">
-            <input v-model="hasNoMiddleName" type="checkbox">
-            <span>Отчество отсутствует</span>
-          </label>
-
-          <div class="input_form">
-            <p>Номер комнаты:</p>
-            <input v-model="roomNumber" type="text" required>
-          </div>
-
-          <div class="input_form">
-            <p>Пароль:</p>
-            <input v-model="password" type="password" required>
-          </div>
-
-          <div class="input_form">
-            <p>Повторите пароль:</p>
-            <input v-model="passwordConfirm" type="password" required>
-          </div>
+            <FormField
+              v-if="field.name === 'middle_name'"
+              v-model="form.has_no_middle_name"
+              :field="{
+                name: 'has_no_middle_name',
+                label: 'Отчество отсутствует',
+                type: 'checkbox',
+                class: 'checkbox_form',
+              }"
+            />
+          </template>
 
           <div class="input_form">
             <input

@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
+import { setAuthenticated } from "../auth";
 
 const router = useRouter();
 
@@ -28,6 +29,7 @@ async function loginUser() {
     );
 
     success.value = response.data.message;
+    setAuthenticated(true);
 
     await router.push("/home");
 

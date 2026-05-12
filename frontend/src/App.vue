@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "./api";
+import { setAuthenticated } from "./auth";
 
 const route = useRoute();
 const router = useRouter();
@@ -10,6 +11,7 @@ const showSidebar = computed(() => !route.meta.guestOnly);
 
 async function logoutUser() {
   await api.post("/account/logout/", {});
+  setAuthenticated(false);
 
   router.push("/");
 }
