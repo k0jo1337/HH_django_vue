@@ -135,3 +135,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
+
+
+import os
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Дополнительные настройки для аватаров
+DATA_UPLOAD_MAX_NUMBER_FILES = 10
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240

@@ -5,6 +5,7 @@ import EntranceView from "../views/EntranceView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import HomeView from "../views/HomeView.vue";
 import ProfileView from "../views/ProfileView.vue";
+import ProfileEditView from "../views/ProfileEditView.vue"; // Добавляем импорт
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,7 +18,6 @@ const router = createRouter({
         guestOnly: true
       }
     },
-
     {
       path: "/registration",
       component: RegisterView,
@@ -25,7 +25,6 @@ const router = createRouter({
         guestOnly: true
       }
     },
-
     {
       path: "/home",
       component: HomeView,
@@ -39,35 +38,33 @@ const router = createRouter({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: "/profile/edit",  // Добавляем маршрут редактирования
+      component: ProfileEditView,
+      meta: {
+        requiresAuth: true
+      }
     }
   ],
 });
 
 router.beforeEach(async (to) => {
-
   try {
+    const response = await api.get("/account/me/");
+    const isAuthenticated = response.data.isAuthenticated;
 
-    const response = await api.get("/account/me/")
-
-    const isAuthenticated =
-      response.data.isAuthenticated
-    console.log(isAuthenticated)
     if (to.meta.requiresAuth && !isAuthenticated) {
-      return "/"
+      return "/";
     }
-
     if (to.meta.guestOnly && isAuthenticated) {
-      return "/home"
+      return "/home";
     }
-
   } catch {
-
     if (to.meta.requiresAuth) {
-      return "/"
+      return "/";
     }
-
   }
-
-})
+});
 
 export default router;
