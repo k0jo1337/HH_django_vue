@@ -40,9 +40,18 @@ div.form_logo {
 }
 
 div.form_logo img {
-    object-fit: cover;
+    display: block;
     height: 100%;
     width: 100%;
+}
+
+div.form_logo img.form-logo-full {
+    object-fit: contain;
+}
+
+div.form_logo img.form-logo-compact {
+    display: none;
+    object-fit: contain;
 }
 
 div.adaptiv_form {
@@ -407,6 +416,14 @@ div.adaptiv_entrance img {
 }
 
 @media (max-width: 380px) {
+
+    div.form_logo img.form-logo-full {
+        display: none;
+    }
+
+    div.form_logo img.form-logo-compact {
+        display: block;
+    }
 
     div.adaptiv_form h1 {
         font-size: 24px;

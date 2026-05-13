@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from "vue";
 import api from "../api";
 import FormField from "../components/FormField.vue";
+import ProfileSidebar from "../components/ProfileSidebar.vue";
 import { editableProfileFields } from "../forms/profileFields";
 
 const user = ref(null);
@@ -42,31 +43,35 @@ onMounted(async () => {
       Загрузка...
     </div>
 
-    <div v-else-if="user" class="profil_item_2">
-      <div class="profil_fields">
-        <div class="profil_list">
-          <FormField
-            v-for="field in fieldGroups.name"
-            :key="field.name"
-            :model-value="field.value"
-            :field="{ ...field, class: 'profil_list_item' }"
-          />
+    <div v-else-if="user" class="profile-layout">
+      <ProfileSidebar :user="user" />
+
+      <div class="profil_item_2">
+        <div class="profil_fields">
+          <div class="profil_list">
+            <FormField
+              v-for="field in fieldGroups.name"
+              :key="field.name"
+              :model-value="field.value"
+              :field="{ ...field, class: 'profil_list_item' }"
+            />
+          </div>
+
+          <div class="profil_list">
+            <FormField
+              v-for="field in fieldGroups.contacts"
+              :key="field.name"
+              :model-value="field.value"
+              :field="{ ...field, class: 'profil_list_item' }"
+            />
+          </div>
         </div>
 
-        <div class="profil_list">
-          <FormField
-            v-for="field in fieldGroups.contacts"
-            :key="field.name"
-            :model-value="field.value"
-            :field="{ ...field, class: 'profil_list_item' }"
-          />
+        <div class="profil_change">
+          <RouterLink to="/profile/edit">Редактировать профиль</RouterLink>
+          <br>
+          <RouterLink to="/password-change">Смена пароля</RouterLink>
         </div>
-      </div>
-
-      <div class="profil_change">
-        <RouterLink to="/profile/edit">Редактировать профиль</RouterLink>
-        <br>
-        <RouterLink to="/password-change">Смена пароля</RouterLink>
       </div>
     </div>
   </main>

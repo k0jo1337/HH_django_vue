@@ -94,7 +94,8 @@ async function registerUser() {
   <main class="main register-main">
     <div class="parent_form">
       <div class="form_logo">
-        <img src="/Hostel_logo.png" alt="Hostel Helper">
+        <img class="form-logo-full" src="/Hostel_logo.png" alt="Hostel Helper">
+        <img class="form-logo-compact" src="/Hostel_logo.png" alt="Hostel Helper">
       </div>
 
       <div class="adaptiv_form">

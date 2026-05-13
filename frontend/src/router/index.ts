@@ -7,6 +7,8 @@ import RegisterView from "../views/RegisterView.vue";
 import HomeView from "../views/HomeView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ProfileEditView from "../views/ProfileEditView.vue"; // Добавляем импорт
+import AppealCreateView from "../views/AppealCreateView.vue";
+import AppealListView from "../views/AppealListView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -43,6 +45,29 @@ const router = createRouter({
     {
       path: "/profile/edit",  // Добавляем маршрут редактирования
       component: ProfileEditView,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/appeal",
+      component: AppealListView,
+      meta: {
+        requiresAuth: true,
+        appealMode: "active"
+      }
+    },
+    {
+      path: "/appeal/history",
+      component: AppealListView,
+      meta: {
+        requiresAuth: true,
+        appealMode: "history"
+      }
+    },
+    {
+      path: "/appeal/new",
+      component: AppealCreateView,
       meta: {
         requiresAuth: true
       }
