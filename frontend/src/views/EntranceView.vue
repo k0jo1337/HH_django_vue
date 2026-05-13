@@ -1,17 +1,25 @@
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
 import { setAuthenticated } from "../auth";
+import FormField from "../components/FormField.vue";
 
 const router = useRouter();
 
-const username = ref("");
-const password = ref("");
+const form = reactive({
+  username: "",
+  password: "",
+});
 
 const error = ref("");
 const success = ref("");
 const loading = ref(false);
+
+const loginFields = [
+  { name: "username", label: "Логин:", type: "text", required: true, autocomplete: "username" },
+  { name: "password", label: "Пароль:", type: "password", required: true, autocomplete: "current-password" },
+];
 
 async function loginUser() {
   error.value = "";
@@ -23,8 +31,8 @@ async function loginUser() {
     const response = await api.post(
       "/account/login/",
       {
-        username: username.value,
-        password: password.value,
+        username: form.username,
+        password: form.password,
       }
     );
 
@@ -51,7 +59,8 @@ async function loginUser() {
     <div class="parent_form">
 
       <div class="form_logo">
-        <img src="/Hostel_logo.png" alt="logo">
+        <img class="form-logo-full" src="/Hostel_logo.png" alt="Hostel Helper">
+        <img class="form-logo-compact" src="/Hostel_logo.png" alt="Hostel Helper">
       </div>
 
       <div class="adaptiv_form">
@@ -64,25 +73,12 @@ async function loginUser() {
 
         <form @submit.prevent="loginUser">
 
-          <div class="input_form">
-            <p>Логин:</p>
-
-            <input
-              v-model="username"
-              type="text"
-              required
-            >
-          </div>
-
-          <div class="input_form">
-            <p>Пароль:</p>
-
-            <input
-              v-model="password"
-              type="password"
-              required
-            >
-          </div>
+          <FormField
+            v-for="field in loginFields"
+            :key="field.name"
+            v-model="form[field.name]"
+            :field="field"
+          />
 
           <div class="input_form">
             <input

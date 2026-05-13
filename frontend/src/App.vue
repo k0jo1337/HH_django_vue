@@ -22,7 +22,10 @@ async function logoutUser() {
     <aside class="out">
       <div class="sidebar_logo">
         <RouterLink to="/home">
-          <img src="/Logo.png" alt="Logo">
+          <picture>
+            <source media="(max-width: 992px)" srcset="/Hostel_logo.png">
+            <img src="/Logo.png" alt="Logo">
+          </picture>
         </RouterLink>
       </div>
 
@@ -41,7 +44,7 @@ async function logoutUser() {
           </li>
 
           <li class="nav_list-item">
-            <RouterLink to="/appeal" class="nav_list-link">
+            <RouterLink to="/appeal/new" class="nav_list-link">
               <img src="/complaint.png" alt="Обращение">
             </RouterLink>
           </li>

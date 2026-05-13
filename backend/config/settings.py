@@ -10,10 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def load_env_file(path):
+    if not path.exists():
+        return
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+load_env_file(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -136,9 +153,6 @@ CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 
-
-import os
-
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -146,3 +160,47 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Дополнительные настройки для аватаров
 DATA_UPLOAD_MAX_NUMBER_FILES = 10
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+# Email settings for appeal notifications
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.yandex.ru")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "465"))
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "true").lower() == "true"
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "false").lower() == "true"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+APPEAL_RECIPIENT_EMAILS = [
+    email.strip()
+    for email in os.getenv(
+        "APPEAL_RECIPIENT_EMAILS",
+        "HostelHelperTiu@yandex.ru,hostelhelpertiu@gmail.com",
+    ).split(",")
+    if email.strip()
+]
+APPEAL_EMAIL_SENDERS = [
+    {
+        "host": EMAIL_HOST,
+        "port": EMAIL_PORT,
+        "username": EMAIL_HOST_USER,
+        "password": EMAIL_HOST_PASSWORD,
+        "use_ssl": EMAIL_USE_SSL,
+        "use_tls": EMAIL_USE_TLS,
+        "from_email": DEFAULT_FROM_EMAIL,
+    },
+    {
+        "host": os.getenv("GMAIL_EMAIL_HOST", "smtp.gmail.com"),
+        "port": int(os.getenv("GMAIL_EMAIL_PORT", "587")),
+        "username": os.getenv("GMAIL_EMAIL_HOST_USER", ""),
+        "password": os.getenv("GMAIL_EMAIL_HOST_PASSWORD", ""),
+        "use_ssl": os.getenv("GMAIL_EMAIL_USE_SSL", "false").lower() == "true",
+        "use_tls": os.getenv("GMAIL_EMAIL_USE_TLS", "true").lower() == "true",
+        "from_email": os.getenv(
+            "GMAIL_DEFAULT_FROM_EMAIL",
+            os.getenv("GMAIL_EMAIL_HOST_USER", ""),
+        ),
+    },
+]
