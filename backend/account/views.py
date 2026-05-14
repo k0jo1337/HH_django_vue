@@ -1,6 +1,6 @@
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser  # Добавлен JSONParser
@@ -8,6 +8,11 @@ from .serializers import RegisterSerializer, UpdateProfileSerializer
 from .models import UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
+from rest_framework.permissions import AllowAny
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.conf import settings
 
 
 def get_user_profile(user):
@@ -280,3 +285,130 @@ def change_password_view(request):
         errors[field] = error_list[0]
 
     return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    """
+    Запрос на сброс пароля - отправка email со ссылкой через Gmail
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from django.template.loader import render_to_string
+    from django.conf import settings
+
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email обязателен"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({
+            "message": "Если пользователь с таким email существует, инструкции по сбросу пароля отправлены"
+        }, status=status.HTTP_200_OK)
+
+    # Генерация токена
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+    # Формирование ссылки для сброса пароля
+    reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+
+    # HTML письмо из шаблона
+    html_message = render_to_string('account/password_reset_email.html', {
+        'user': user,
+        'reset_url': reset_url,
+        'site_name': 'Hostel Helper',
+    })
+
+    # Отправка через Gmail
+    gmail_user = settings.GMAIL_EMAIL_HOST_USER
+    gmail_password = settings.GMAIL_EMAIL_HOST_PASSWORD
+
+    msg = MIMEMultipart()
+    msg['From'] = gmail_user
+    msg['To'] = email
+    msg['Subject'] = 'Сброс пароля на сайте Hostel Helper'
+    msg.attach(MIMEText(html_message, 'html'))
+
+    try:
+        server = smtplib.SMTP(settings.GMAIL_EMAIL_HOST, settings.GMAIL_EMAIL_PORT)
+        if settings.GMAIL_EMAIL_USE_TLS:
+            server.starttls()
+        server.login(gmail_user, gmail_password)
+        server.send_message(msg)
+        server.quit()
+    except Exception as e:
+        return Response({"error": f"Ошибка отправки письма: {str(e)}"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response({
+        "message": "Инструкции по сбросу пароля отправлены на ваш email"
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def password_reset_verify(request, uidb64, token):
+    """
+    Проверка валидности ссылки сброса пароля
+    """
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({"valid": False, "error": "Недействительная ссылка"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    if default_token_generator.check_token(user, token):
+        return Response({"valid": True, "uid": uidb64, "token": token})
+
+    return Response({"valid": False, "error": "Ссылка устарела или недействительна"},
+                    status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def password_reset_confirm(request):
+    """
+    Установка нового пароля
+    """
+    uidb64 = request.data.get("uid")
+    token = request.data.get("token")
+    new_password1 = request.data.get("new_password1")
+    new_password2 = request.data.get("new_password2")
+
+    # Проверка совпадения паролей
+    if new_password1 != new_password2:
+        return Response({"error": "Пароли не совпадают"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Проверка длины пароля
+    if len(new_password1) < 6:
+        return Response({"error": "Пароль должен содержать минимум 6 символов"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Декодирование uid
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({"error": "Недействительная ссылка"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Проверка токена
+    if not default_token_generator.check_token(user, token):
+        return Response({"error": "Ссылка устарела или недействительна"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Установка нового пароля
+    user.set_password(new_password1)
+    user.save()
+
+    return Response({
+        "message": "Пароль успешно изменен. Теперь вы можете войти с новым паролем."
+    }, status=status.HTTP_200_OK)

@@ -6,9 +6,10 @@ import EntranceView from "../views/EntranceView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import HomeView from "../views/HomeView.vue";
 import ProfileView from "../views/ProfileView.vue";
-import ProfileEditView from "../views/ProfileEditView.vue"; // Добавляем импорт
+import ProfileEditView from "../views/ProfileEditView.vue";
 import AppealCreateView from "../views/AppealCreateView.vue";
 import AppealListView from "../views/AppealListView.vue";
+import ResetPasswordView from "../views/ResetPasswordView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -43,7 +44,7 @@ const router = createRouter({
       }
     },
     {
-      path: "/profile/edit",  // Добавляем маршрут редактирования
+      path: "/profile/edit",
       component: ProfileEditView,
       meta: {
         requiresAuth: true
@@ -70,6 +71,13 @@ const router = createRouter({
       component: AppealCreateView,
       meta: {
         requiresAuth: true
+      }
+    },
+    {
+      path: "/reset-password/:uid/:token/",
+      component: ResetPasswordView,
+      meta: {
+        guestOnly: true
       }
     }
   ],

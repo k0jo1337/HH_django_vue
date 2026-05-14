@@ -204,3 +204,14 @@ APPEAL_EMAIL_SENDERS = [
         ),
     },
 ]
+
+# Gmail settings for password reset (использует переменные из .env)
+GMAIL_EMAIL_HOST = os.getenv("GMAIL_EMAIL_HOST", "smtp.gmail.com")
+GMAIL_EMAIL_PORT = int(os.getenv("GMAIL_EMAIL_PORT", "587"))
+GMAIL_EMAIL_USE_SSL = os.getenv("GMAIL_EMAIL_USE_SSL", "false").lower() == "true"
+GMAIL_EMAIL_USE_TLS = os.getenv("GMAIL_EMAIL_USE_TLS", "true").lower() == "true"
+GMAIL_EMAIL_HOST_USER = os.getenv("GMAIL_EMAIL_HOST_USER", "")
+GMAIL_EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD", "").replace(" ", "")
+GMAIL_DEFAULT_FROM_EMAIL = os.getenv("GMAIL_DEFAULT_FROM_EMAIL", GMAIL_EMAIL_HOST_USER)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
