@@ -6,7 +6,8 @@ from .views import (
     login_view,
     logout_view,
     me_view,
-    profile_view
+    profile_view,
+    change_password_view
 )
 
 urlpatterns = [
@@ -15,6 +16,7 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("me/", me_view, name="me"),
     path("profile/", profile_view, name="profile"),
+    path("change-password/", change_password_view, name="change_password"),
 ]
 
 if settings.DEBUG:

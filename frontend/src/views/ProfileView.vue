@@ -3,10 +3,12 @@ import { computed, ref, onMounted } from "vue";
 import api from "../api";
 import FormField from "../components/FormField.vue";
 import ProfileSidebar from "../components/ProfileSidebar.vue";
+import ChangePasswordModal from "../components/ChangePasswordModal.vue";
 import { editableProfileFields } from "../forms/profileFields";
 
 const user = ref(null);
 const loading = ref(true);
+const showChangePassword = ref(false);
 
 const fieldGroups = computed(() => {
   const source = user.value || {};
@@ -35,6 +37,14 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+function openChangePassword() {
+  showChangePassword.value = true;
+}
+
+function closeChangePassword() {
+  showChangePassword.value = false;
+}
 </script>
 
 <template>
@@ -70,9 +80,14 @@ onMounted(async () => {
         <div class="profil_change">
           <RouterLink to="/profile/edit">Редактировать профиль</RouterLink>
           <br>
-          <RouterLink to="/password-change">Смена пароля</RouterLink>
+          <a href="#" @click.prevent="openChangePassword">Смена пароля</a>
         </div>
       </div>
     </div>
+
+    <ChangePasswordModal
+      v-if="showChangePassword"
+      @close="closeChangePassword"
+    />
   </main>
 </template>

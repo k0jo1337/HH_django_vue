@@ -1,4 +1,4 @@
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
@@ -7,6 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser  # Д
 from .serializers import RegisterSerializer, UpdateProfileSerializer
 from .models import UserProfile
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 def get_user_profile(user):
@@ -256,3 +257,26 @@ def profile_view(request):
                 "avatar": avatar_url,
             }
         }, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@login_required
+def change_password_view(request):
+    """
+    Смена пароля пользователя
+    """
+    form = PasswordChangeForm(user=request.user, data=request.data)
+
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        return Response({
+            "message": "Пароль успешно изменен"
+        }, status=status.HTTP_200_OK)
+
+    # Возвращаем ошибки валидации
+    errors = {}
+    for field, error_list in form.errors.items():
+        errors[field] = error_list[0]
+
+    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
