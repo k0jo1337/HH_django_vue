@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from account.decorators import employee_required, can_view_all_appeals
 from .models import Appeal
 
 
@@ -98,8 +98,8 @@ def create_appeal(request):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     if not any(
-        sender["username"] and sender["password"]
-        for sender in settings.APPEAL_EMAIL_SENDERS
+            sender["username"] and sender["password"]
+            for sender in settings.APPEAL_EMAIL_SENDERS
     ):
         return Response(
             {"error": "Не настроены данные SMTP-отправителя"},
@@ -183,3 +183,98 @@ def list_appeals(request):
         appeals = appeals.exclude(status=Appeal.STATUS_COMPLETED)
 
     return Response({"appeals": [serialize_appeal(appeal) for appeal in appeals]})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@can_view_all_appeals
+def list_all_appeals(request):
+    """
+    Получение всех обращений (только для сотрудников)
+    """
+    appeals = Appeal.objects.all().order_by('-created_at')
+
+    appeal_type = request.query_params.get("type", "all")
+    if appeal_type == "new":
+        appeals = appeals.filter(status=Appeal.STATUS_NEW)
+    elif appeal_type == "in_progress":
+        appeals = appeals.filter(status=Appeal.STATUS_IN_PROGRESS)
+    elif appeal_type == "completed":
+        appeals = appeals.filter(status=Appeal.STATUS_COMPLETED)
+
+    return Response({"appeals": [serialize_appeal(appeal) for appeal in appeals]})
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+@employee_required
+def update_appeal_status(request, pk):
+    """
+    Обновление статуса обращения (только для сотрудников)
+    """
+    try:
+        appeal = Appeal.objects.get(pk=pk)
+    except Appeal.DoesNotExist:
+        return Response({"error": "Обращение не найдено"}, status=status.HTTP_404_NOT_FOUND)
+
+    new_status = request.data.get("status")
+    if not new_status:
+        return Response({"error": "Не указан статус"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if new_status not in dict(Appeal.STATUS_CHOICES):
+        return Response({"error": "Неверный статус"}, status=status.HTTP_400_BAD_REQUEST)
+
+    appeal.status = new_status
+    appeal.save()
+
+    return Response({
+        "message": "Статус обновлен",
+        "appeal": serialize_appeal(appeal)
+    })
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@can_view_all_appeals
+def appeal_detail(request, pk):
+    """
+    Получение детальной информации о заявке (для сотрудников)
+    """
+    try:
+        appeal = Appeal.objects.get(pk=pk)
+    except Appeal.DoesNotExist:
+        return Response({"error": "Обращение не найдено"}, status=status.HTTP_404_NOT_FOUND)
+
+    user = appeal.user
+    profile = getattr(user, 'profile', None)
+
+    # Формируем ФИО с учетом отчества
+    middle_name = ""
+    has_no_middle_name = False
+    if profile:
+        middle_name = profile.middle_name if not profile.has_no_middle_name else ""
+        has_no_middle_name = profile.has_no_middle_name
+
+    full_name = f"{user.last_name} {user.first_name}"
+    if middle_name:
+        full_name += f" {middle_name}"
+    elif not has_no_middle_name and not middle_name:
+        full_name += " (отчество не указано)"
+
+    return Response({
+        "appeal": serialize_appeal(appeal),
+        "user_info": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "middle_name": middle_name,
+            "has_no_middle_name": has_no_middle_name,
+            "full_name": full_name,
+            "phone": profile.phone if profile else "-",
+            "room_number": profile.room_number if profile else "-",
+            "hostel": profile.hostel if profile else "-",
+            "university": profile.university if profile else "-",
+        }
+    })

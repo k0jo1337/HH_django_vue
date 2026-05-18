@@ -1,5 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from PIL import Image
 import os
 
@@ -31,13 +35,11 @@ class UserProfile(models.Model):
         return f"{self.user.username} - room {self.room_number}"
 
     def save(self, *args, **kwargs):
-        # Убеждаемся, что has_no_middle_name это булево значение
         if isinstance(self.has_no_middle_name, str):
             self.has_no_middle_name = self.has_no_middle_name.lower() in ['true', '1', 'yes', 'on']
 
         super().save(*args, **kwargs)
 
-        # Оптимизация аватара
         if self.avatar and self.avatar.name and self.avatar.name != 'avatars/default.png':
             try:
                 if os.path.exists(self.avatar.path):
@@ -48,3 +50,37 @@ class UserProfile(models.Model):
                         img.save(self.avatar.path)
             except Exception as e:
                 print(f"Error processing avatar: {e}")
+
+
+# Сигнал для создания групп и прав после миграции
+@receiver(post_migrate)
+def create_groups_and_permissions(sender, **kwargs):
+    if sender.name != 'account':
+        return
+
+    # Создаем группы
+    employee_group, _ = Group.objects.get_or_create(name='Сотрудник')
+    user_group, _ = Group.objects.get_or_create(name='Пользователь')
+
+    # Пытаемся добавить права для обращений (если модель уже существует)
+    try:
+        from django.apps import apps
+        Appeal = apps.get_model('api', 'Appeal')
+        if Appeal:
+            appeal_content_type = ContentType.objects.get_for_model(Appeal)
+
+            # Права для сотрудников
+            permission_codenames = [
+                'can_view_all_appeals',
+                'can_change_appeal_status',
+                'can_assign_specialist'
+            ]
+
+            for codename in permission_codenames:
+                try:
+                    permission = Permission.objects.get(codename=codename, content_type=appeal_content_type)
+                    employee_group.permissions.add(permission)
+                except Permission.DoesNotExist:
+                    pass
+    except:
+        pass

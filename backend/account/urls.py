@@ -10,7 +10,8 @@ from .views import (
     change_password_view,
     password_reset_request,
     password_reset_verify,
-    password_reset_confirm
+    password_reset_confirm,
+    user_role
 )
 
 urlpatterns = [
@@ -23,6 +24,7 @@ urlpatterns = [
     path("password-reset/", password_reset_request, name="password_reset"),
     path("password-reset/verify/<uidb64>/<token>/", password_reset_verify, name="password_reset_verify"),
     path("password-reset/confirm/", password_reset_confirm, name="password_reset_confirm"),
+    path("role/", user_role, name="user_role"),
 ]
 
 if settings.DEBUG:

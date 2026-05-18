@@ -33,7 +33,8 @@ async function loadAppeals() {
   error.value = "";
 
   try {
-    const response = await api.get("/appeals/", {
+    // Исправленный URL - убрал /appeals/ на /appeals/list/
+    const response = await api.get("/appeals/list/", {
       params: {
         type: mode.value,
       },

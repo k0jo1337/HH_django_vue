@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "./api";
-import { setAuthenticated } from "./auth";
+import { setAuthenticated, setEmployee, isEmployeeUser } from "./auth";
 
 const route = useRoute();
 const router = useRouter();
@@ -12,7 +12,8 @@ const showSidebar = computed(() => !route.meta.guestOnly);
 async function logoutUser() {
   await api.post("/account/logout/", {});
   setAuthenticated(false);
-
+  setEmployee(false);
+  localStorage.removeItem('isEmployee');
   router.push("/");
 }
 </script>
@@ -46,6 +47,13 @@ async function logoutUser() {
           <li class="nav_list-item">
             <RouterLink to="/appeal/new" class="nav_list-link">
               <img src="/complaint.png" alt="Обращение">
+            </RouterLink>
+          </li>
+
+          <!-- Иконка для сотрудников - синхронная проверка -->
+          <li v-if="isEmployeeUser()" class="nav_list-item">
+            <RouterLink to="/employee/appeals" class="nav_list-link">
+              <img src="/complaint.png" alt="Все заявки">
             </RouterLink>
           </li>
         </ul>

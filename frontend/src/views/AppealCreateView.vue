@@ -72,7 +72,7 @@ async function createAppeal() {
     form.subject = form.subject.trim();
     form.message = form.message.trim();
 
-    await api.post("/appeals/create/", {
+    await api.post("/appeals/", {
       subject: form.subject,
       specialist: form.specialist,
       message: form.message,

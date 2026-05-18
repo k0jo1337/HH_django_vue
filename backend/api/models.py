@@ -41,6 +41,11 @@ class Appeal(models.Model):
         ordering = ["-created_at"]
         verbose_name = "Обращение"
         verbose_name_plural = "Обращения"
+        permissions = [
+            ("can_view_all_appeals", "Может просматривать все обращения"),
+            ("can_change_appeal_status", "Может изменять статус обращений"),
+            ("can_assign_specialist", "Может назначать специалиста"),
+        ]
 
     def __str__(self):
         return f"{self.subject} ({self.get_status_display()})"
