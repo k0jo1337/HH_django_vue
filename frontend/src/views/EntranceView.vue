@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
-import { setAuthenticated } from "../auth";
+import { setAuthenticated, setEmployee } from "../auth";
 import FormField from "../components/FormField.vue";
 import PasswordResetForm from "../components/PasswordResetForm.vue";
 
@@ -37,6 +37,9 @@ async function loginUser() {
 
     success.value = response.data.message;
     setAuthenticated(true);
+
+    const roleResponse = await api.get("/account/role/");
+    setEmployee(roleResponse.data.is_employee);
 
     await router.push("/home");
 
@@ -93,10 +96,6 @@ function closeResetModal() {
           </div>
         </form>
 
-        <div class="forgot-password">
-          <a href="#" @click.prevent="openResetModal">Забыли пароль?</a>
-        </div>
-
         <div v-if="success" class="alert alert-success mt-3">
           {{ success }}
         </div>
@@ -109,6 +108,10 @@ function closeResetModal() {
           Нет аккаунта?
           <RouterLink to="/registration">Регистрация</RouterLink>
         </h6>
+
+        <div class="forgot-password">
+          <a href="#" @click.prevent="openResetModal">Забыли пароль?</a>
+        </div>
       </div>
     </div>
 
@@ -135,13 +138,14 @@ function closeResetModal() {
 
 <style scoped>
 .forgot-password {
-  text-align: right;
-  margin-top: 10px;
+  text-align: left;
+  margin-top: 4px;
 }
 
 .forgot-password a {
   color: #3c5ba4;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 500;
   text-decoration: none;
 }
 

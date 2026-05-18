@@ -1,0 +1,165 @@
+.info-page {
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    background: #F8FAFC;
+    padding: 40px;
+}
+
+.info-shell {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
+
+.info-header {
+    margin-bottom: 28px;
+}
+
+.info-kicker {
+    margin: 0 0 8px;
+    color: #34745D;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.info-header h1 {
+    margin: 0 0 12px;
+    color: #111827;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.info-header p {
+    max-width: 680px;
+    margin: 0;
+    color: #4B5563;
+    font-size: 18px;
+}
+
+.info-grid-page {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.info-card {
+    min-height: 240px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.info-card-accent {
+    background: #F1F8F5;
+    border-color: #CFE6DA;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    background: #34745D;
+    color: #FFFFFF;
+    font-size: 22px;
+}
+
+.info-card h2 {
+    margin: 0 0 12px;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 750;
+}
+
+.info-card p,
+.info-card li {
+    color: #4B5563;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.info-card p {
+    margin: 0;
+}
+
+.info-card ul {
+    margin: 16px 0 0;
+    padding-left: 20px;
+}
+
+.info-contact-list {
+    display: grid;
+    gap: 14px;
+}
+
+.info-contact-list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.info-contact-list div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.info-contact-list span {
+    color: #6B7280;
+}
+
+.info-contact-list strong {
+    color: #111827;
+    font-weight: 750;
+    text-align: right;
+}
+
+@media (max-width: 992px) {
+    .info-page {
+        padding: 28px;
+    }
+
+    .info-header h1 {
+        font-size: 34px;
+    }
+
+    .info-grid-page {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .info-page {
+        padding: 20px 16px;
+    }
+
+    .info-header h1 {
+        font-size: 28px;
+    }
+
+    .info-header p {
+        font-size: 16px;
+    }
+
+    .info-card {
+        min-height: 0;
+        padding: 20px;
+    }
+
+    .info-contact-list div {
+        display: grid;
+        gap: 4px;
+    }
+
+    .info-contact-list strong {
+        text-align: left;
+    }
+}
