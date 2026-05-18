@@ -11,10 +11,27 @@
 }
 
 .appeal-create-page {
+    position: relative;
+    isolation: isolate;
     align-items: center;
+    overflow-y: auto;
+}
+
+.appeal-create-page::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 30vh;
+    min-height: 240px;
+    background: #385AA6;
 }
 
 .appeal-form {
+    position: relative;
+    z-index: 1;
     width: min(100%, 760px);
     background: white;
     border-radius: 8px;
@@ -250,11 +267,21 @@
         min-height: 0;
         padding: 25px;
     }
+
+    .appeal-create-page::before {
+        height: 220px;
+        min-height: 220px;
+    }
 }
 
 @media (max-width: 480px) {
     .appeal-page {
         padding: 16px;
+    }
+
+    .appeal-create-page::before {
+        height: 180px;
+        min-height: 180px;
     }
 
     .appeal-form {

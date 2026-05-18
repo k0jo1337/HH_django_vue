@@ -13,7 +13,7 @@ async function logoutUser() {
   await api.post("/account/logout/", {});
   setAuthenticated(false);
   setEmployee(false);
-  localStorage.removeItem('isEmployee');
+  localStorage.removeItem("isEmployee");
   router.push("/");
 }
 </script>
@@ -39,12 +39,6 @@ async function logoutUser() {
           </li>
 
           <li class="nav_list-item">
-            <RouterLink to="/chat" class="nav_list-link">
-              <img src="/chat.png" alt="Чат">
-            </RouterLink>
-          </li>
-
-          <li class="nav_list-item">
             <RouterLink to="/appeal/new" class="nav_list-link">
               <img src="/complaint.png" alt="Обращение">
             </RouterLink>
@@ -53,7 +47,13 @@ async function logoutUser() {
           <!-- Иконка для сотрудников - синхронная проверка -->
           <li v-if="isEmployeeUser()" class="nav_list-item">
             <RouterLink to="/employee/appeals" class="nav_list-link">
-              <img src="/complaint.png" alt="Все заявки">
+              <img src="/to-do-list.png" alt="Все заявки">
+            </RouterLink>
+          </li>
+
+          <li class="nav_list-item">
+            <RouterLink to="/info" class="nav_list-link">
+              <img src="/info.png" alt="Полезная информация">
             </RouterLink>
           </li>
         </ul>

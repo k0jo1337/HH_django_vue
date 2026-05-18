@@ -5,6 +5,7 @@ import { hasAuthenticatedSession, setAuthenticated, setEmployee, isEmployeeUser 
 import EntranceView from "../views/EntranceView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import HomeView from "../views/HomeView.vue";
+import InfoView from "../views/InfoView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ProfileEditView from "../views/ProfileEditView.vue";
 import AppealCreateView from "../views/AppealCreateView.vue";
@@ -29,6 +30,11 @@ const router = createRouter({
     {
       path: "/home",
       component: HomeView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/info",
+      component: InfoView,
       meta: { requiresAuth: true }
     },
     {
