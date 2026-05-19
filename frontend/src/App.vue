@@ -39,8 +39,8 @@ async function logoutUser() {
             </RouterLink>
           </li>
 
-          <!-- Создание заявок только для обычных пользователей -->
-          <li v-if="!isEmployee" class="nav_list-item">
+          <!-- Кнопка создания заявок для ВСЕХ авторизованных пользователей -->
+          <li class="nav_list-item">
             <RouterLink to="/appeal/new" class="nav_list-link">
               <img src="/complaint.png" alt="Обращение">
             </RouterLink>

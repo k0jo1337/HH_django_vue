@@ -111,25 +111,25 @@ const useDefaultAvatar = () => {
     </div>
 
     <div class="profil_list_item_2">
-      <!-- Для обычных пользователей -->
-      <template v-if="!isEmployee">
-        <div class="profil_inf">
-          <RouterLink to="/appeal">Активные обращения</RouterLink>
-        </div>
-        <div class="profil_inf ind">
-          <RouterLink to="/appeal/history">История обращений</RouterLink>
-        </div>
-      </template>
+      <!-- Активные обращения для ВСЕХ пользователей -->
+      <div class="profil_inf">
+        <RouterLink to="/appeal">Активные обращения</RouterLink>
+      </div>
 
-      <!-- Для сотрудников -->
-      <template v-else>
-        <div class="profil_inf">
-          <RouterLink to="/employee/appeals">📋 Все заявки</RouterLink>
-        </div>
-        <div class="profil_inf ind">
-          <RouterLink to="/home">📰 Управление новостями</RouterLink>
-        </div>
-      </template>
+      <!-- История обращений для ВСЕХ пользователей -->
+      <div class="profil_inf ind">
+        <RouterLink to="/appeal/history">История обращений</RouterLink>
+      </div>
+
+      <!-- Все заявки (только для сотрудников) -->
+      <div v-if="isEmployee" class="profil_inf">
+        <RouterLink to="/employee/appeals">📋 Все заявки</RouterLink>
+      </div>
+
+      <!-- Управление новостями (только для сотрудников) -->
+      <div v-if="isEmployee" class="profil_inf ind">
+        <RouterLink to="/home">📰 Управление новостями</RouterLink>
+      </div>
     </div>
   </aside>
 </template>
