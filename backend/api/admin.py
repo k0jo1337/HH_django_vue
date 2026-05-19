@@ -5,7 +5,8 @@ from .models import Appeal
 @admin.register(Appeal)
 class AppealAdmin(admin.ModelAdmin):
     list_display = ('id', 'get_full_name', 'get_phone', 'get_email',
-                    'subject', 'specialist', 'status', 'created_at')
+                    'get_hostel', 'get_room_number', 'subject', 'specialist',
+                    'status', 'created_at')
 
     list_filter = ('status', 'specialist', 'created_at')
 
@@ -38,7 +39,6 @@ class AppealAdmin(admin.ModelAdmin):
             middle_name = profile.middle_name if profile and not profile.has_no_middle_name else ''
             return f"{obj.user.last_name} {obj.user.first_name} {middle_name}".strip()
         return obj.user.username if obj.user else '-'
-
     get_full_name.short_description = 'ФИО отправителя'
     get_full_name.admin_order_field = 'user__last_name'
 
@@ -49,84 +49,69 @@ class AppealAdmin(admin.ModelAdmin):
             middle_name = profile.middle_name if profile and not profile.has_no_middle_name else ''
             return f"{obj.user.last_name} {obj.user.first_name} {middle_name}".strip()
         return obj.user.username if obj.user else '-'
-
     get_full_name_display.short_description = 'ФИО'
 
     def get_phone(self, obj):
-        """Телефон для списка"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.phone or '-'
         return '-'
-
     get_phone.short_description = 'Телефон'
 
     def get_phone_display(self, obj):
-        """Телефон для формы"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.phone or '-'
         return '-'
-
     get_phone_display.short_description = 'Телефон'
 
     def get_email(self, obj):
-        """Email для списка"""
         if obj.user:
             return obj.user.email
         return '-'
-
     get_email.short_description = 'Email'
 
     def get_email_display(self, obj):
-        """Email для формы"""
         if obj.user:
             return obj.user.email
         return '-'
-
     get_email_display.short_description = 'Email'
 
     def get_hostel(self, obj):
-        """Номер общежития для списка"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.hostel or '-'
         return '-'
-
     get_hostel.short_description = 'Общежитие'
 
     def get_hostel_display(self, obj):
-        """Номер общежития для формы"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.hostel or '-'
         return '-'
-
     get_hostel_display.short_description = 'Общежитие'
 
     def get_room_number(self, obj):
-        """Номер комнаты для списка"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.room_number or '-'
         return '-'
-
     get_room_number.short_description = 'Комната'
 
     def get_room_number_display(self, obj):
-        """Номер комнаты для формы"""
         if obj.user and hasattr(obj.user, 'profile'):
             return obj.user.profile.room_number or '-'
         return '-'
-
     get_room_number_display.short_description = 'Комната'
 
-    actions = ['mark_as_in_progress', 'mark_as_completed']
+    actions = ['mark_as_in_progress', 'mark_as_completed', 'mark_as_new']
+
+    def mark_as_new(self, request, queryset):
+        queryset.update(status=Appeal.STATUS_NEW)
+        self.message_user(request, f'Обращения помечены как "Новые"')
+    mark_as_new.short_description = 'Отметить как "Новые"'
 
     def mark_as_in_progress(self, request, queryset):
         queryset.update(status=Appeal.STATUS_IN_PROGRESS)
         self.message_user(request, f'Обращения помечены как "В работе"')
-
     mark_as_in_progress.short_description = 'Отметить как "В работе"'
 
     def mark_as_completed(self, request, queryset):
         queryset.update(status=Appeal.STATUS_COMPLETED)
         self.message_user(request, f'Обращения помечены как "Завершено"')
-
     mark_as_completed.short_description = 'Отметить как "Завершено"'
-

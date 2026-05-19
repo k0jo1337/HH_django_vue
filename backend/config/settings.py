@@ -216,3 +216,5 @@ GMAIL_EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD", "").replace("
 GMAIL_DEFAULT_FROM_EMAIL = os.getenv("GMAIL_DEFAULT_FROM_EMAIL", GMAIL_EMAIL_HOST_USER)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

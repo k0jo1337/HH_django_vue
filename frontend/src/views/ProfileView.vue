@@ -5,10 +5,12 @@ import FormField from "../components/FormField.vue";
 import ProfileSidebar from "../components/ProfileSidebar.vue";
 import ChangePasswordModal from "../components/ChangePasswordModal.vue";
 import { editableProfileFields } from "../forms/profileFields";
+import { isEmployeeUser } from "../auth";
 
 const user = ref(null);
 const loading = ref(true);
 const showChangePassword = ref(false);
+const isEmployee = computed(() => isEmployeeUser());
 
 const fieldGroups = computed(() => {
   const source = user.value || {};
@@ -17,7 +19,15 @@ const fieldGroups = computed(() => {
     contacts: [],
   };
 
+  // Поля, которые нужно скрыть для сотрудников
+  const hiddenForEmployee = ['room_number', 'hostel'];
+
   editableProfileFields.forEach((field) => {
+    // Пропускаем скрытые поля для сотрудников
+    if (isEmployee.value && hiddenForEmployee.includes(field.name)) {
+      return;
+    }
+
     groups[field.group].push({
       ...field,
       readonly: true,

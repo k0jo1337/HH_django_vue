@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
+import { isEmployeeUser } from "../auth";
 
 const props = defineProps({
   user: {
@@ -21,6 +22,8 @@ const emit = defineEmits(["avatar-change"]);
 const fileInput = ref(null);
 const imageLoadFailed = ref(false);
 
+const isEmployee = computed(() => isEmployeeUser());
+
 const avatarSrc = computed(() => (
   !imageLoadFailed.value && props.user.avatar ? props.user.avatar : "/profil.png"
 ));
@@ -33,6 +36,13 @@ const fullName = computed(() => {
   ].filter(Boolean);
 
   return parts.length ? parts.join(" ") : props.user.username || "-";
+});
+
+const roleLabel = computed(() => {
+  if (isEmployee.value) {
+    return "Сотрудник";
+  }
+  return "Студент";
 });
 
 const hostelLabel = computed(() => {
@@ -93,18 +103,41 @@ const useDefaultAvatar = () => {
 
       <div class="profil_name">
         <h3>{{ fullName }}</h3>
+        <p class="role-badge">{{ roleLabel }}</p>
         <p>{{ hostelLabel }}</p>
-        <p>{{ roomLabel }}</p>
+        <!-- Скрываем комнату для сотрудников -->
+        <p v-if="!isEmployee">{{ roomLabel }}</p>
       </div>
     </div>
 
     <div class="profil_list_item_2">
-      <div class="profil_inf">
-        <RouterLink to="/appeal">Активные обращения</RouterLink>
-      </div>
-      <div class="profil_inf ind">
-        <RouterLink to="/appeal/history">История обращений</RouterLink>
-      </div>
+      <!-- Для обычных пользователей -->
+      <template v-if="!isEmployee">
+        <div class="profil_inf">
+          <RouterLink to="/appeal">Активные обращения</RouterLink>
+        </div>
+        <div class="profil_inf ind">
+          <RouterLink to="/appeal/history">История обращений</RouterLink>
+        </div>
+      </template>
+
+      <!-- Для сотрудников -->
+      <template v-else>
+        <div class="profil_inf">
+          <RouterLink to="/employee/appeals">📋 Все заявки</RouterLink>
+        </div>
+        <div class="profil_inf ind">
+          <RouterLink to="/home">📰 Управление новостями</RouterLink>
+        </div>
+      </template>
     </div>
   </aside>
 </template>
+
+<style scoped>
+.role-badge {
+  color: #3c5ba4;
+  font-weight: bold;
+  margin-top: 5px;
+}
+</style>

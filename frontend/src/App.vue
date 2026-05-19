@@ -8,6 +8,7 @@ const route = useRoute();
 const router = useRouter();
 
 const showSidebar = computed(() => !route.meta.guestOnly);
+const isEmployee = computed(() => isEmployeeUser());
 
 async function logoutUser() {
   await api.post("/account/logout/", {});
@@ -38,14 +39,15 @@ async function logoutUser() {
             </RouterLink>
           </li>
 
-          <li class="nav_list-item">
+          <!-- Создание заявок только для обычных пользователей -->
+          <li v-if="!isEmployee" class="nav_list-item">
             <RouterLink to="/appeal/new" class="nav_list-link">
               <img src="/complaint.png" alt="Обращение">
             </RouterLink>
           </li>
 
-          <!-- Иконка для сотрудников - синхронная проверка -->
-          <li v-if="isEmployeeUser()" class="nav_list-item">
+          <!-- Все заявки только для сотрудников -->
+          <li v-if="isEmployee" class="nav_list-item">
             <RouterLink to="/employee/appeals" class="nav_list-link">
               <img src="/to-do-list.png" alt="Все заявки">
             </RouterLink>

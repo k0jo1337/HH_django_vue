@@ -5,6 +5,7 @@ import api from "../api";
 import FormField from "../components/FormField.vue";
 import ProfileSidebar from "../components/ProfileSidebar.vue";
 import { editableProfileFields, profileInitialValues } from "../forms/profileFields";
+import { isEmployeeUser } from "../auth";
 
 const router = useRouter();
 
@@ -14,12 +15,16 @@ const error = ref("");
 const success = ref("");
 const selectedAvatarFile = ref(null);
 const avatarPreviewUrl = ref("");
+const isEmployee = computed(() => isEmployeeUser());
 
 const form = reactive({
   ...profileInitialValues,
   has_no_middle_name: false,
   avatar: "",
 });
+
+// Поля, которые нужно скрыть для сотрудников
+const hiddenForEmployee = ['room_number', 'hostel'];
 
 const fieldGroups = computed(() => {
   const groups = {
@@ -28,6 +33,11 @@ const fieldGroups = computed(() => {
   };
 
   editableProfileFields.forEach((field) => {
+    // Пропускаем скрытые поля для сотрудников
+    if (isEmployee.value && hiddenForEmployee.includes(field.name)) {
+      return;
+    }
+
     const nextField = field.name === "middle_name"
       ? {
           ...field,
