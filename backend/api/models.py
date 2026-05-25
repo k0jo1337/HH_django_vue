@@ -2,6 +2,33 @@ from django.db import models
 from django.conf import settings
 
 
+class Executor(models.Model):
+    """Модель исполнителя (сотрудника) без привязки к пользователю"""
+    first_name = models.CharField("Имя", max_length=100)
+    last_name = models.CharField("Фамилия", max_length=100)
+    middle_name = models.CharField("Отчество", max_length=100, blank=True)
+    position = models.CharField("Должность", max_length=100, blank=True)
+    phone = models.CharField("Телефон", max_length=20, blank=True)
+    work_phone = models.CharField("Рабочий телефон", max_length=20, blank=True)
+    email = models.EmailField("Email", blank=True)
+    is_active = models.BooleanField("Активен", default=True)
+    created_at = models.DateTimeField("Дата добавления", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Исполнитель"
+        verbose_name_plural = "Исполнители"
+        ordering = ["last_name", "first_name"]
+
+    def __str__(self):
+        return f"{self.last_name} {self.first_name} {self.middle_name}".strip()
+
+    def get_full_name(self):
+        parts = [self.last_name, self.first_name]
+        if self.middle_name:
+            parts.append(self.middle_name)
+        return " ".join(parts)
+
+
 class Appeal(models.Model):
     STATUS_NEW = "new"
     STATUS_IN_PROGRESS = "in_progress"
@@ -24,6 +51,7 @@ class Appeal(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="appeals",
+        verbose_name="Заявитель"
     )
     subject = models.CharField("Тема", max_length=120)
     specialist = models.CharField("Специалист", max_length=20, choices=SPECIALIST_CHOICES)
@@ -34,6 +62,15 @@ class Appeal(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_NEW,
     )
+    executor = models.ForeignKey(
+        Executor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="appeals",
+        verbose_name="Исполнитель"
+    )
+    completed_at = models.DateTimeField("Дата выполнения", null=True, blank=True)
     created_at = models.DateTimeField("Создано", auto_now_add=True)
     updated_at = models.DateTimeField("Обновлено", auto_now=True)
 
