@@ -17,7 +17,7 @@
 
 .info-kicker {
     margin: 0 0 8px;
-    color: #34745D;
+    color: #3c5ba4;
     font-weight: 700;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -54,8 +54,8 @@
 }
 
 .info-card-accent {
-    background: #F1F8F5;
-    border-color: #CFE6DA;
+    background: #EEF2F7;
+    border-color: #dbe3f0;
 }
 
 .info-icon {
@@ -66,7 +66,7 @@
     height: 42px;
     margin-bottom: 18px;
     border-radius: 8px;
-    background: #34745D;
+    background: #3c5ba4;
     color: #FFFFFF;
     font-size: 22px;
 }

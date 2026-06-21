@@ -216,5 +216,15 @@ GMAIL_EMAIL_HOST_PASSWORD = os.getenv("GMAIL_EMAIL_HOST_PASSWORD", "").replace("
 GMAIL_DEFAULT_FROM_EMAIL = os.getenv("GMAIL_DEFAULT_FROM_EMAIL", GMAIL_EMAIL_HOST_USER)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+BACKEND_PUBLIC_URL = os.getenv("BACKEND_PUBLIC_URL", "http://localhost:8000").rstrip("/")
+
+# VK news notifications
+VK_NEWS_BOT_ENABLED = os.getenv("VK_NEWS_BOT_ENABLED", "false").lower() == "true"
+VK_BOT_TOKEN = os.getenv("VK_BOT_TOKEN", "")
+VK_NEWS_PEER_ID = os.getenv("VK_NEWS_PEER_ID", "")
+VK_API_VERSION = os.getenv("VK_API_VERSION", "5.199")
+VK_NEWS_SEND_TIMEOUT = float(os.getenv("VK_NEWS_SEND_TIMEOUT", "5"))
+VK_NEWS_MESSAGE_PREFIX = os.getenv("VK_NEWS_MESSAGE_PREFIX", "Новая новость")
+NEWS_PUBLIC_URL = os.getenv("NEWS_PUBLIC_URL", f"{FRONTEND_URL.rstrip('/')}/home")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
