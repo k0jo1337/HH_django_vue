@@ -20,6 +20,18 @@ class UserProfile(models.Model):
     phone = models.CharField('Номер телефона', max_length=11, blank=True, default='')
     university = models.CharField('Институт', max_length=100, blank=True, default='')
     hostel = models.CharField('Номер общежития', max_length=20, blank=True, default='')
+    balance_debit = models.DecimalField(
+        'Задолженность',
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+    balance_credit = models.DecimalField(
+        'Переплата',
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
     avatar = models.ImageField(
         default='avatars/default.png',
         upload_to='avatars/',

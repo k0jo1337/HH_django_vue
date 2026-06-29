@@ -13,6 +13,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
+from django.db import transaction
+from .debtors import DebtorsFileError, match_debtor_row, parse_debtors_xlsx
 
 
 def get_user_profile(user):
@@ -101,6 +103,8 @@ def me_view(request):
                 "university": profile.university,
                 "hostel": profile.hostel,
                 "room_number": profile.room_number,
+                "balance_debit": str(profile.balance_debit),
+                "balance_credit": str(profile.balance_credit),
                 "avatar": avatar_url,
             }
         })
@@ -117,6 +121,106 @@ def logout_view(request):
     """
     logout(request)
     return Response({"message": "Вы вышли"})
+
+
+@api_view(["POST"])
+@login_required
+@parser_classes([MultiPartParser, FormParser])
+def upload_debtors_view(request):
+    is_employee = (
+        request.user.is_superuser
+        or request.user.groups.filter(name="Сотрудник").exists()
+    )
+    if not is_employee:
+        return Response(
+            {"error": "Загружать задолженности могут только сотрудники"},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    uploaded_file = request.FILES.get("file")
+    if not uploaded_file:
+        return Response(
+            {"error": "Выберите Excel-файл"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if not uploaded_file.name.lower().endswith(".xlsx"):
+        return Response(
+            {"error": "Поддерживаются только Excel-файлы формата .xlsx"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if uploaded_file.size > 10 * 1024 * 1024:
+        return Response(
+            {"error": "Размер Excel-файла не должен превышать 10 МБ"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        rows = parse_debtors_xlsx(uploaded_file)
+    except DebtorsFileError as exc:
+        return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    profiles = list(
+        UserProfile.objects.select_related("user")
+        .prefetch_related("user__groups")
+        .exclude(user__groups__name="Сотрудник")
+        .exclude(user__is_superuser=True)
+        .distinct()
+    )
+    updated_profiles = []
+    used_profile_ids = set()
+    unmatched = []
+
+    for row in rows:
+        profile, reason = match_debtor_row(row, profiles)
+        if profile is None:
+            unmatched.append({
+                "row": row.row_number,
+                "full_name": row.full_name,
+                "room_number": row.room_number,
+                "reason": reason,
+            })
+            continue
+        if profile.id in used_profile_ids:
+            unmatched.append({
+                "row": row.row_number,
+                "full_name": row.full_name,
+                "room_number": row.room_number,
+                "reason": "в файле уже есть строка для этого студента",
+            })
+            continue
+
+        profile.balance_debit = row.debit
+        profile.balance_credit = row.credit
+        updated_profiles.append(profile)
+        used_profile_ids.add(profile.id)
+
+    if not updated_profiles:
+        return Response(
+            {
+                "error": "Ни одну строку файла не удалось сопоставить со студентами",
+                "unmatched": unmatched,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    with transaction.atomic():
+        UserProfile.objects.bulk_update(
+            updated_profiles,
+            ["balance_debit", "balance_credit"],
+        )
+
+    updated_count = len(updated_profiles)
+    unmatched_count = len(unmatched)
+    message = f"Обновлён баланс {updated_count} студента(ов)."
+    if unmatched_count:
+        message += f" Не сопоставлено строк: {unmatched_count}."
+
+    return Response({
+        "message": message,
+        "updated": updated_count,
+        "unmatched_count": unmatched_count,
+        "unmatched": unmatched,
+    })
 
 
 @api_view(["GET", "PUT", "PATCH"])
@@ -146,6 +250,8 @@ def profile_view(request):
             "phone": profile.phone,
             "university": profile.university,
             "hostel": profile.hostel,
+            "balance_debit": str(profile.balance_debit),
+            "balance_credit": str(profile.balance_credit),
             "avatar": avatar_url,
         })
 
@@ -234,6 +340,8 @@ def profile_view(request):
                 "phone": profile.phone,
                 "university": profile.university,
                 "hostel": profile.hostel,
+                "balance_debit": str(profile.balance_debit),
+                "balance_credit": str(profile.balance_credit),
                 "avatar": avatar_url,
             }
         }, status=status.HTTP_200_OK)
